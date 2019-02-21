@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Yii;
 use app\models\Product;
 use app\models\search\ProductSearch;
@@ -107,6 +110,30 @@ class ProductsController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionExport()
+    {
+        $spreadsheet = new Spreadsheet();
+
+        $newSheet = new Worksheet($spreadsheet, 'Test');
+        $spreadsheet->addSheet($newSheet);
+        $spreadsheet->setActiveSheetIndexByName('Test');
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (Product::find()->each() as $index => $product) {
+            /** @var Product $product */
+            $keys = array_keys($product->getAttributes());
+            foreach ($product->getAttributes() as $key => $value) {
+                $column = array_search($key, $keys) + 1;
+                $row = $index + 1;
+                $sheet->setCellValueByColumnAndRow($column, $row, $value);
+            }
+        }
+
+        $writer = new Csv($spreadsheet);
+        $writer->save(Yii::getAlias('@runtime/products.csv'));
     }
 
     /**
