@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
+use app\models\forms\LoginForm;
 use app\models\ContactForm;
 
 class SiteController extends Controller
@@ -65,9 +65,7 @@ class SiteController extends Controller
     }
 
     /**
-     * Login action.
-     *
-     * @return Response|string
+     * @return string|Response
      */
     public function actionLogin()
     {
@@ -81,9 +79,7 @@ class SiteController extends Controller
         }
 
         $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('login', ['model' => $model]);
     }
 
     /**

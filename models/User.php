@@ -2,69 +2,79 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+
+/**
+ * Class User
+ * @package app\models
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $password
+ * @property string $auth_key
+ * @property string $access_token
+ * @property int $created_at
+ * @property int $updated_at
+ */
+class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
-
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    public static function findIdentity($id)
+    public static function tableName(): string
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return '{{%users}}';
     }
 
     /**
-     * {@inheritdoc}
+     * @return array
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function behaviors(): array
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return [TimestampBehavior::class];
     }
 
     /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
+     * @return array
      */
-    public static function findByUsername($username)
+    public function rules(): array
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
+        return [
+            [['created_at', 'updated_at'], 'integer'],
+            [['username', 'password', 'auth_key', 'access_token'], 'string', 'max' => 255],
+            [['username'], 'unique']
+        ];
+    }
 
-        return null;
+    /**
+     * @param int|string $id
+     * @return User|null
+     */
+    public static function findIdentity($id): ?User
+    {
+        return self::findOne($id);
+    }
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return User|null
+     */
+    public static function findIdentityByAccessToken($token, $type = null): ?User
+    {
+        return self::findOne(['access_token' => $token]);
+    }
+
+    /**
+     * @param $username
+     * @return User|null
+     */
+    public static function findByUsername($username): ?User
+    {
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -80,7 +90,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
@@ -88,17 +98,15 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key === $authKey;
     }
 
     /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @param string $password
+     * @return bool
      */
-    public function validatePassword($password)
+    public function validatePassword($password): bool
     {
-        return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 }
