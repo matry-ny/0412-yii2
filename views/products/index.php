@@ -1,7 +1,9 @@
 <?php
 
+use app\models\Product;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\grid\ActionColumn;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\search\ProductSearch */
@@ -16,16 +18,26 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Product'), ['create'], ['class' => 'btn btn-success']) ?>
-        <?= Html::a(Yii::t('app', 'Export to XLSX'), ['export'], ['class' => 'btn btn-primary']) ?>
+        <?php if (Yii::$app->getUser()->can('addProduct')) : ?>
+            <?= Html::a(
+                Yii::t('app', 'Create Product'),
+                ['create'],
+                ['class' => 'btn btn-success']
+            ) ?>
+        <?php endif; ?>
+        <?php if (Yii::$app->getUser()->can('exportProducts')) : ?>
+            <?= Html::a(
+                Yii::t('app', 'Export to XLSX'),
+                ['export'],
+                ['class' => 'btn btn-primary']
+            ) ?>
+        <?php endif; ?>
     </p>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
             'id',
             'title',
             'price',
@@ -37,7 +49,19 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_at:datetime',
             'updated_at:datetime',
 
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
+            [
+                'class' => ActionColumn::class,
+                'visibleButtons' => [
+                    'view' => Yii::$app->getUser()->can('viewProduct'),
+                    'update' => Yii::$app->getUser()->can('updateProduct'),
+                    'delete' => function (Product $product) {
+                        return Yii::$app->getUser()->can('deleteProduct') ||
+                        Yii::$app->getUser()->can('deleteOwnProduct', [
+                            'product' => $product
+                        ]);
+                    }
+                ]
+            ]
+        ]
     ]); ?>
 </div>

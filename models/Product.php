@@ -16,6 +16,7 @@ use yii\db\ActiveRecord;
  * @property int $author_id
  * @property int $created_at
  * @property int $updated_at
+ * @property int $created_by
  *
  * @property Author $author
  */
@@ -47,13 +48,19 @@ class Product extends ActiveRecord
         return [
             [['title'], 'required'],
             [['price'], 'number'],
-            [['author_id', 'created_at', 'updated_at'], 'integer'],
+            [['author_id', 'created_at', 'updated_at', 'created_by'], 'integer'],
             [['title'], 'string', 'max' => 255],
             [
                 ['author_id'],
                 'exist',
                 'targetClass' => Author::class,
                 'targetAttribute' => ['author_id' => 'id']
+            ],
+            [
+                ['created_by'],
+                'exist',
+                'targetClass' => User::class,
+                'targetAttribute' => ['created_by' => 'id']
             ]
         ];
     }
@@ -70,6 +77,7 @@ class Product extends ActiveRecord
             'author_id' => Yii::t('app', 'Author ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
+            'created_by' => Yii::t('app', 'Created By')
         ];
     }
 

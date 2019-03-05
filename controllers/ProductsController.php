@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Yii;
 use app\models\Product;
 use app\models\search\ProductSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -24,11 +25,52 @@ class ProductsController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
-                    'delete' => ['POST'],
-                ],
+                    'delete' => ['POST']
+                ]
             ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['viewProductsList']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['view'],
+                        'roles' => ['viewProduct']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create'],
+                        'roles' => ['addProduct']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['update'],
+                        'roles' => ['updateProduct']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'matchCallback' => function() {
+                            $productId = Yii::$app->getRequest()->get('id');
+                            return Yii::$app->getUser()->can('deleteProduct') ||
+                                Yii::$app->getUser()->can('deleteOwnProduct', [
+                                    'product' => $this->findModel($productId)
+                                ]);
+                        }
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['export'],
+                        'roles' => ['exportProducts']
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -68,6 +110,7 @@ class ProductsController extends Controller
     public function actionCreate()
     {
         $model = new Product();
+        $model->created_by = Yii::$app->getUser()->getId();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);

@@ -44,6 +44,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => []
+        ],
+        'authManager' => [
+            'class' => \yii\rbac\DbManager::class,
+            'defaultRoles' => ['guest']
         ]
     ],
     'modules' => [
