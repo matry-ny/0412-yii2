@@ -4,6 +4,7 @@
 /* @var $content string */
 
 use app\widgets\Alert;
+use lajax\translatemanager\widgets\ToggleTranslate;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -45,6 +46,30 @@ AppAsset::register($this);
                 'visible' => Yii::$app->getUser()->can('viewProductsList'),
                 'url' => ['/products']
             ],
+            [
+                'label' => 'Translations',
+                'items' => [
+                    ['label' => Yii::t('language', 'Language'), 'items' => [
+                        [
+                            'label' => Yii::t('language', 'List of languages'),
+                            'url' => ['/translatemanager/language/list']
+                        ],
+                        [
+                            'label' => Yii::t('language', 'Create'),
+                            'url' => ['/translatemanager/language/create']
+                        ]
+                    ]
+                    ],
+                    [
+                        'label' => Yii::t('language', 'Scan'),
+                        'url' => ['/translatemanager/language/scan']
+                    ],
+                    [
+                        'label' => Yii::t('language', 'Optimize'),
+                        'url' => ['/translatemanager/language/optimizer']
+                    ]
+                ]
+            ],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
@@ -67,6 +92,7 @@ AppAsset::register($this);
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
         <?= Alert::widget() ?>
+        <?= ToggleTranslate::widget(); ?>
         <?= $content ?>
     </div>
 </div>

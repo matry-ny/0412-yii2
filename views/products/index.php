@@ -20,14 +20,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?php if (Yii::$app->getUser()->can('addProduct')) : ?>
             <?= Html::a(
-                Yii::t('app', 'Create Product'),
+                Yii::t('products', 'Create Product'),
                 ['create'],
                 ['class' => 'btn btn-success']
             ) ?>
         <?php endif; ?>
         <?php if (Yii::$app->getUser()->can('exportProducts')) : ?>
             <?= Html::a(
-                Yii::t('app', 'Export to XLSX'),
+                Yii::t('products', 'Export to XLSX'),
                 ['export'],
                 ['class' => 'btn btn-primary']
             ) ?>
@@ -39,7 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             'id',
-            'title',
+            ['attribute' => 'title', 'value' => 'title_t'],
             'price',
             [
                 'attribute' => 'author_id',

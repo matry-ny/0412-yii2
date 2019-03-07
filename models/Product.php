@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use lajax\translatemanager\helpers\Language;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -22,6 +23,11 @@ use yii\db\ActiveRecord;
  */
 class Product extends ActiveRecord
 {
+    /**
+     * @var string
+     */
+    public $title_t;
+
     /**
      * @return string
      */
@@ -71,14 +77,33 @@ class Product extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'title' => Yii::t('app', 'Title'),
-            'price' => Yii::t('app', 'Price'),
-            'author_id' => Yii::t('app', 'Author ID'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
-            'created_by' => Yii::t('app', 'Created By')
+            'id' => Yii::t('product', 'ID'),
+            'title' => Yii::t('product', 'Title'),
+            'price' => Yii::t('product', 'Price'),
+            'author_id' => Yii::t('product', 'Author ID'),
+            'created_at' => Yii::t('product', 'Created At'),
+            'updated_at' => Yii::t('product', 'Updated At'),
+            'created_by' => Yii::t('product', 'Created By')
         ];
+    }
+
+    public function afterFind() {
+        $this->title_t = Language::d($this->title);
+        parent::afterFind();
+    }
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert) {
+        if (parent::beforeSave($insert)) {
+            Language::saveMessage($this->title);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

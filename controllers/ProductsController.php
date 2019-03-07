@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use lajax\translatemanager\helpers\Language;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
@@ -18,6 +19,12 @@ use yii\filters\VerbFilter;
  */
 class ProductsController extends Controller
 {
+    public function init()
+    {
+        Language::registerAssets();
+        parent::init();
+    }
+
     /**
      * {@inheritdoc}
      */
