@@ -1,15 +1,35 @@
 (function ($) {
-    var conn = new ab.Session('ws://127.0.0.1:8888',
-        function() {
-            // eventMonitoring идентификатор, который мы передаём в push класс.
-            // conn.subscribe('eventMonitoring', function(topic, data) {
-            //     // Сюда будут прилетать данные от вашего веб приложения.
-            //     console.log(data);
-            // });
+    var socket = {
+        socketUrl: 'ws://127.0.0.1:8888',
+
+        /**
+         * Init  socket connection
+         */
+        init: function () {
+            this.connect();
         },
-        function() {
-            console.warn('WebSocket connection closed');
-        },
-        {'skipSubprotocolCheck': true}
-    );
+        connect: function () {
+            var socketConnection = new ab.Session(
+                this.socketUrl,
+                function () {
+                    $(socket).trigger('socketInit', [socketConnection]);
+                },
+                function () {
+                    console.warn('Connection is broken');
+                    setTimeout(function () {
+                        socket.connect();
+                    }, 500);
+                },
+                {
+                    'skipSubprotocolCheck': true
+                }
+            );
+        }
+    };
+
+    $(socket).on('socketInit', function (connection) {
+        console.log('Opened', $('#chat-form'));
+    });
+    socket.init();
+
 })(jQuery);

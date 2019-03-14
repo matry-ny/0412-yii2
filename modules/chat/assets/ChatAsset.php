@@ -30,4 +30,11 @@ class ChatAsset extends AssetBundle
     public $depends = [
         JqueryAsset::class
     ];
+
+    /**
+     * @var array
+     */
+    public $publishOptions = [
+        'forceCopy' => true
+    ];
 }
