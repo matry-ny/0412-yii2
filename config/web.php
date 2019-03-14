@@ -35,6 +35,10 @@ $config = [
         'translatemanager' => [
             'class' => \lajax\translatemanager\Component::class
         ]
+    ],
+    'modules' => [
+        'api' => \app\modules\api\ApiModule::class,
+        'chat' => \app\modules\chat\ChatModule::class
     ]
 ];
 

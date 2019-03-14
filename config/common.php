@@ -31,7 +31,6 @@ return [
         ]
     ],
     'modules' => [
-        'api' => \app\modules\api\ApiModule::class,
         'translatemanager' => [
             'class' => lajax\translatemanager\Module::class,
             'root' => '@app',
