@@ -68,7 +68,11 @@ class EventPusher implements WampServerInterface
      */
     function onSubscribe(ConnectionInterface $conn, $topic)
     {
-        // TODO: Implement onSubscribe() method.
+        $subject = $topic->getId();
+        if (!array_key_exists($subject, $this->subscribedTopics))
+        {
+            $this->subscribedTopics[$subject] = $topic;
+        }
     }
 
     /**
@@ -91,7 +95,7 @@ class EventPusher implements WampServerInterface
      */
     function onPublish(ConnectionInterface $conn, $topic, $event, array $exclude, array $eligible)
     {
-        // TODO: Implement onPublish() method.
+        $topic->broadcast($event, $exclude, $eligible);
     }
 
     function onPushEventData($event)

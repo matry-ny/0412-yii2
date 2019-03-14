@@ -27,8 +27,18 @@
         }
     };
 
-    $(socket).on('socketInit', function (connection) {
-        console.log('Opened', $('#chat-form'));
+    $(socket).on('socketInit', function (event, connection) {
+        connection.subscribe('message', function (topic, data) {
+            $('#chat-messages').append($('li').text(data));
+        });
+
+        $('#chat-form').on('submit', function () {
+            var message = $(this).find('[name="message"]').val();
+
+            connection.publish('message', message);
+            
+            return false;
+        });
     });
     socket.init();
 
