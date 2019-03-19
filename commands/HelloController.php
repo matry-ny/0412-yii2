@@ -7,28 +7,67 @@
 
 namespace app\commands;
 
+use app\components\RabbitMQ;
+use PhpAmqpLib\Message\AMQPMessage;
 use yii\console\Controller;
-use yii\console\ExitCode;
 
 /**
- * This command echoes the first argument that you have entered.
- *
- * This command is provided as an example for you to learn how to create console commands.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
+ * Class HelloController
+ * @package app\commands
  */
 class HelloController extends Controller
 {
     /**
-     * This command echoes what you have entered as the message.
-     * @param string $message the message to be echoed.
-     * @return int Exit code
+     * @param int $number
      */
-    public function actionIndex($message = 'hello world')
+    public function actionSetUpNumber(int $number)
     {
-        echo $message . "\n";
+        /** @var RabbitMQ $rabbitMQ */
+        $rabbitMQ = \Yii::$app->get('rabbitMQ');
+        $channel = $rabbitMQ->getConnection()->channel();
+        $channel->queue_declare(
+            'numbers',
+            false,
+            false,
+            false,
+            false
+        );
 
-        return ExitCode::OK;
+        $message = new AMQPMessage(
+            json_encode(['number' => $number])
+        );
+        $channel->basic_publish($message, '', 'numbers');
+
+        $channel->close();
+        $rabbitMQ->getConnection()->close();
+    }
+
+    public function actionRenderNumbers()
+    {
+        /** @var RabbitMQ $rabbitMQ */
+        $rabbitMQ = \Yii::$app->get('rabbitMQ');
+        $channel = $rabbitMQ->getConnection()->channel();
+
+        $channel->basic_consume(
+            'numbers',
+            '',
+            false,
+            true,
+            false,
+            false,
+            function(AMQPMessage $message) {
+                $data = json_decode($message->body, true);
+                echo $data['number'] . PHP_EOL;
+
+                sleep(5);
+            }
+        );
+
+        while (count($channel->callbacks)) {
+            $channel->wait();
+        }
+
+        $channel->close();
+        $rabbitMQ->getConnection()->close();
     }
 }

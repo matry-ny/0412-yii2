@@ -21,7 +21,8 @@
         "phpoffice/phpspreadsheet": "^1.6",
         "lajax/yii2-translate-manager": "^1.7",
         "cboden/ratchet": "dev-master",
-        "react/zmq": "^0.4.0"
+        "react/zmq": "^0.4.0",
+        "php-amqplib/php-amqplib": "^2.8"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

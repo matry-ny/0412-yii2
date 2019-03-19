@@ -28,7 +28,8 @@ return [
         'authManager' => [
             'class' => \yii\rbac\DbManager::class,
             'defaultRoles' => ['guest']
-        ]
+        ],
+        'rabbitMQ' => \app\components\RabbitMQ::class
     ],
     'modules' => [
         'translatemanager' => [
